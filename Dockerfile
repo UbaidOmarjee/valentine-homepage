@@ -19,4 +19,4 @@ COPY --from=build /app/out .
 EXPOSE 80
 
 # Replace YourProjectName.dll with your actual DLL name
-ENTRYPOINT ["dotnet", "valentine-homepage.dll"]
+ENTRYPOINT ["dotnet", "Valentinesite.dll"]
