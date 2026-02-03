@@ -1,29 +1,20 @@
-﻿# Use the official .NET SDK image to build the app
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+﻿FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
-# Copy solution file if exists
-COPY *.sln ./
+# Copy csproj and restore
+COPY ["ValentineSite.csproj", "."]
+RUN dotnet restore "ValentineSite.csproj"
 
-# Create directory and copy csproj (handles missing dirs)
-RUN mkdir -p ValentineSite
-COPY *.csproj ./ValentineSite/ 2>/dev/null || true
-COPY ValentineSite/*.csproj ./ValentineSite/ 2>/dev/null || true
+# Copy everything else and build
+COPY . .
+RUN dotnet build "ValentineSite.csproj" -c Release -o /app/build
 
-RUN dotnet restore
+# Publish
+RUN dotnet publish "ValentineSite.csproj" -c Release -o /app/publish
 
-# Copy everything else
-COPY . ./
-WORKDIR /src/ValentineSite
-RUN dotnet publish -c Release -o /app/publish
-
-# Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/publish ./
-
-# For Render.com
+COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:${PORT}
 EXPOSE ${PORT}
-
 ENTRYPOINT ["dotnet", "ValentineSite.dll"]
