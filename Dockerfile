@@ -6,15 +6,17 @@ WORKDIR /app
 COPY *.csproj ./
 RUN dotnet restore
 
-# Copy the rest of the files and build
+# Copy everything else and build
 COPY . ./
 RUN dotnet publish -c Release -o out
 
-# Stage 2: Run
+# Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app
 COPY --from=build /app/out .
 
-# Expose port (Render uses 10000+ automatically if needed)
+# Expose port 80
 EXPOSE 80
-ENTRYPOINT ["dotnet", "ValentineSite.dll"]
+
+# Replace YourProjectName.dll with your actual DLL name
+ENTRYPOINT ["dotnet", "valentine-homepage.dll"]
